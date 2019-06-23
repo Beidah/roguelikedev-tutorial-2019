@@ -1,0 +1,11 @@
+[package]
+name = "roguelikedev"
+version = "0.1.0"
+authors = ["Hunter Marshall <Beidah@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+# ggez = "0.4.4"
+tcod = "0.12.0"
+specs = "0.11.2"
+specs-derive = "0.4.0"
