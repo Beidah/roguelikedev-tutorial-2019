@@ -1,17 +1,20 @@
-#[derive(Debug, Clone, Copy)]
+use specs::{Component, VecStorage};
+
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum ActionType {
-    Movement,
+    None,
+    MoveUp,
+    MoveDown,
+    MoveRight,
+    MoveLeft,
 }
 
-#[derive(Debug, Clone, Copy)]
-pub struct Payload {
-    pub dx: Option<i32>,
-    pub dy: Option<i32>,
-}
+#[derive(Component, Default, Debug, PartialEq)]
+#[storage(VecStorage)]
+pub struct Action(pub ActionType);
 
-#[derive(Debug, Clone, Copy)]
-pub struct Action {
-    pub act_type: ActionType,
-    pub payload: Payload,
-    pub energy_cost: i32,
+impl Default for ActionType {
+    fn default() -> Self {
+        ActionType::None
+    }
 }
