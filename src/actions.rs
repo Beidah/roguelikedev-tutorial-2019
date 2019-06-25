@@ -3,10 +3,7 @@ use specs::{Component, VecStorage};
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum ActionType {
     None,
-    MoveUp,
-    MoveDown,
-    MoveRight,
-    MoveLeft,
+    Move(i32, i32),
 }
 
 #[derive(Component, Default, Debug, PartialEq)]

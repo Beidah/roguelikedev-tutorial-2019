@@ -7,14 +7,15 @@ use input::InputHandler;
 
 mod actions;
 mod components;
-mod player;
+mod map;
 mod render;
+mod player;
 
-use components::*;
-use player::*;
 use actions::*;
+use components::Position;
+use map::*;
+use player::{Player, PlayerSystem};
 use render::*;
-
 
 #[macro_use]
 extern crate specs_derive;
@@ -42,6 +43,9 @@ fn main() {
     world.add_resource(root);
     world.add_resource(Exit(false));
 
+    let map = Map::new(80, 50, &mut world);
+    world.add_resource(map);
+
     world
         .create_entity()
         .with(Player {})
@@ -54,7 +58,8 @@ fn main() {
         .build();
 
     let mut dispatcher = DispatcherBuilder::new()
-        .with(DrawSystem, "renderer", &[])
+        .with(DrawMap, "draw_map", &[])
+        .with(DrawEntities, "draw_entities", &["draw_map"])
         .with(PlayerSystem, "player_system", &[])
         .with_thread_local(InputHandler)
         .build();

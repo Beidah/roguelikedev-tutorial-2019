@@ -11,9 +11,9 @@ pub struct Glyph {
     pub color: Color,
 }
 
-pub struct DrawSystem;
+pub struct DrawEntities;
 
-impl<'a> System<'a> for DrawSystem {
+impl<'a> System<'a> for DrawEntities {
     type SystemData = (
         ReadStorage<'a, Glyph>,
         ReadStorage<'a, Position>,
@@ -21,7 +21,6 @@ impl<'a> System<'a> for DrawSystem {
     );
 
     fn run(&mut self, (glyphs, pos, mut con): Self::SystemData) {
-        con.clear();
         for (glyph, pos) in (&glyphs, &pos).join() {
             con.set_default_foreground(glyph.color);
             con.put_char(pos.x, pos.y, glyph.character, BackgroundFlag::None);

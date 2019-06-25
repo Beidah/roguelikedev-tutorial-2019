@@ -33,21 +33,21 @@ impl<'a> System<'a> for InputHandler {
             match key {
                 Key {
                     code: KeyCode::Up, ..
-                } => action = ActionType::MoveUp,
+                } => action = ActionType::Move(0, -1),
                 Key {
                     code: KeyCode::Down,
                     ..
-                } => action = ActionType::MoveDown,
+                } => action = ActionType::Move(0, 1),
                 Key {
                     code: KeyCode::Right,
                     ..
                 } => {
-                    action = ActionType::MoveRight;
+                    action = ActionType::Move(1, 0);
                 }
                 Key {
                     code: KeyCode::Left,
                     ..
-                } => action = ActionType::MoveLeft,
+                } => action = ActionType::Move(-1, 0),
                 // Key {
                 //     code: KeyCode::Enter,
                 //     alt: true,
