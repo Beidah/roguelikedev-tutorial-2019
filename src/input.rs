@@ -21,6 +21,7 @@ impl<'a> System<'a> for InputHandler {
     fn run(&mut self, (players, mut actions, con, mut exit): Self::SystemData) {
         let mut key = Default::default();
         let mut action = Default::default();
+        *exit = Exit(con.window_closed());
 
         match input::check_for_event(input::KEY_PRESS) {
             Some((_, Event::Key(k))) => {
@@ -71,7 +72,5 @@ impl<'a> System<'a> for InputHandler {
         for (_, player_action) in (&players, &mut actions).join() {
             player_action.0 = action;
         }
-
-        *exit = Exit(con.window_closed());
     }
 }

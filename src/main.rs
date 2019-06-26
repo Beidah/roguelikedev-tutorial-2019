@@ -8,9 +8,9 @@ use input::InputHandler;
 mod actions;
 mod components;
 mod map;
-mod render;
-mod player;
 
+mod player;
+mod render;
 use actions::*;
 use components::Position;
 use map::*;
@@ -34,6 +34,8 @@ fn main() {
         .title("Rust Roguelike")
         .init();
 
+    tcod::system::set_fps(60);
+
     let mut world = World::new();
     world.register::<Position>();
     world.register::<Player>();
@@ -44,12 +46,17 @@ fn main() {
     world.add_resource(Exit(false));
 
     let map = Map::new(80, 50, &mut world);
+    let (player_x, player_y) = map.get_random_open_spot();
+
     world.add_resource(map);
 
     world
         .create_entity()
         .with(Player {})
-        .with(Position { x: 1, y: 1 })
+        .with(Position {
+            x: player_x,
+            y: player_y,
+        })
         .with(Glyph {
             character: '@',
             color: tcod::colors::YELLOW,
