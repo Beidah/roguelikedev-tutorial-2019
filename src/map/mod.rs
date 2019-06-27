@@ -1,17 +1,17 @@
-
-use rand::distributions::Uniform;
 use rand::Rng;
 use specs::prelude::*;
 
 use tcod::colors::*;
 use tcod::console::{Console, Root};
-use tcod::noise::*;
 
 pub mod tile;
 use tile::Tile;
 
 mod map_generator;
 use map_generator::make_cellular_cave;
+
+use crate::render::Camera;
+use crate::{SCREEN_HEIGHT, SCREEN_WIDTH};
 
 pub struct Map {
     pub width: i32,
@@ -48,19 +48,30 @@ impl Map {
 pub struct DrawMap;
 
 impl<'a> System<'a> for DrawMap {
-    type SystemData = (ReadExpect<'a, Map>, WriteExpect<'a, Root>);
+    type SystemData = (
+        ReadExpect<'a, Map>,
+        ReadExpect<'a, Camera>,
+        WriteExpect<'a, Root>,
+    );
 
-    fn run(&mut self, (map, mut root): Self::SystemData) {
+    fn run(&mut self, (map, camera, mut root): Self::SystemData) {
         root.clear();
-        for y in 0..map.height {
-            for x in 0..map.width {
+        let camera_half_width = camera.width / 2;
+        let camera_half_height = camera.height / 2;
+        for y in (camera.y - camera_half_height + 1)..(camera.y + camera_half_height - 1) {
+            for x in (camera.x - camera_half_width + 1)..(camera.x + camera_half_width - 1) {
+                if y < 0 || x < 0 || y >= map.height || x >= map.width {
+                    continue;
+                }
+                let draw_x = x - (camera.x - camera_half_width);
+                let draw_y = y - (camera.y - camera_half_height);
+                // println!("Drawing tile at {}, {}", draw_x, draw_y);
                 match map.tiles[((y * map.width) + x) as usize] {
                     Tile::Ground => {
-                        root.put_char_ex(x, y, ' ', WHITE, BLACK);
+                        root.put_char_ex(draw_x, draw_y, ' ', WHITE, BLACK);
                     }
                     Tile::Wall => {
-                        // println!("Drawing wall at {}, {}", x, y);
-                        root.put_char_ex(x, y, ' ', BRASS, BRASS);
+                        root.put_char_ex(draw_x, draw_y, ' ', BRASS, BRASS);
                     }
                 }
             }

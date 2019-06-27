@@ -32,9 +32,7 @@ pub fn make_cellular_cave(width: usize, height: usize) -> Vec<Tile> {
         cave_copy(&mut buffer_b, &mut buffer_a, width);
 
         let copied_count = flood_copy(&mut buffer_a, &buffer_b, width, height);
-        println!("Copy count: {}", copied_count);
         if copied_count >= (width * height) as i32 / 2 {
-            println!("Map complete");
             return buffer_a;
         }
     }

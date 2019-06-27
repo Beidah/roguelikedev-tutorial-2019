@@ -45,10 +45,19 @@ fn main() {
     world.add_resource(root);
     world.add_resource(Exit(false));
 
-    let map = Map::new(80, 50, &mut world);
+    let map = Map::new(120, 80, &mut world);
     let (player_x, player_y) = map.get_random_open_spot();
 
     world.add_resource(map);
+
+
+    let camera = Camera {
+        x: player_x,
+        y: player_y,
+        width: SCREEN_WIDTH,
+        height: SCREEN_HEIGHT,
+    };
+    world.add_resource(camera);
 
     world
         .create_entity()
@@ -65,8 +74,9 @@ fn main() {
         .build();
 
     let mut dispatcher = DispatcherBuilder::new()
-        .with(DrawMap, "draw_map", &[])
-        .with(DrawEntities, "draw_entities", &["draw_map"])
+        .with(CameraScroll, "camera", &[])
+        .with(DrawMap, "draw_map", &["camera"])
+        .with(DrawEntities, "draw_entities", &["camera"])
         .with(PlayerSystem, "player_system", &[])
         .with_thread_local(InputHandler)
         .build();
