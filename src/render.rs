@@ -21,6 +21,9 @@ pub struct Camera {
     pub height: i32,
 }
 
+#[derive(Debug, Default, PartialEq)]
+pub struct Dirty(pub bool);
+
 pub struct DrawEntities;
 
 impl<'a> System<'a> for DrawEntities {

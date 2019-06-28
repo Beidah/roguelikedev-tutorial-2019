@@ -46,9 +46,14 @@ fn main() {
     world.add_resource(Exit(false));
 
     let map = Map::new(120, 80, &mut world);
+    let mut fov_map = doryen_fov::MapData::new(120, 80);
     let (player_x, player_y) = map.get_random_open_spot();
+    map.set_fov_walls(&mut fov_map);
 
     world.add_resource(map);
+    world.add_resource(fov_map);
+    // world.add_resource(fov_map);
+    world.add_resource(Dirty(true));
 
 
     let camera = Camera {
@@ -74,10 +79,11 @@ fn main() {
         .build();
 
     let mut dispatcher = DispatcherBuilder::new()
-        .with(CameraScroll, "camera", &[])
-        .with(DrawMap, "draw_map", &["camera"])
-        .with(DrawEntities, "draw_entities", &["camera"])
         .with(PlayerSystem, "player_system", &[])
+        .with(CameraScroll, "camera", &["player_system"])
+        .with(ComputeFOV, "fov", &[])
+        .with(DrawMap, "draw_map", &["camera", "fov"])
+        .with(DrawEntities, "draw_entities", &["camera", "fov"])
         .with_thread_local(InputHandler)
         .build();
 
