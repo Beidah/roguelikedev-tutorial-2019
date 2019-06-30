@@ -1,9 +1,11 @@
 use specs::prelude::*;
 
-use crate::actions::*;
-use crate::components::Position;
-use crate::map::{tile::Tile, Map};
-use crate::render::Dirty;
+use crate::{
+    actor::{Turn, actions::*},
+    components::Position,
+    map::{tile::Tile, Map},
+    render::Dirty,
+};
 
 #[derive(Component, Default, Debug)]
 #[storage(NullStorage)]
@@ -18,9 +20,14 @@ impl<'a> System<'a> for PlayerSystem {
         ReadStorage<'a, Action>,
         ReadExpect<'a, Map>,
         WriteExpect<'a, Dirty>,
+        WriteExpect<'a, Turn>
     );
 
-    fn run(&mut self, (player, mut position, action, map, mut dirty): Self::SystemData) {
+    fn run(&mut self, (player, mut position, action, map, mut dirty, mut turn): Self::SystemData) {
+        if *turn != Turn::Player {
+            return;
+        }
+
         for (_, mut pos, action) in (&player, &mut position, &action).join() {
             match action.0 {
                 ActionType::Move(x, y) => {
@@ -31,6 +38,7 @@ impl<'a> System<'a> for PlayerSystem {
                             *dirty = Dirty(true);
                             pos.x += x;
                             pos.y += y;
+                            *turn = Turn::Enemy;
                         }
                         Tile::Wall => {}
                     }

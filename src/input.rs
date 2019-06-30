@@ -6,7 +6,7 @@ use specs::prelude::*;
 use crate::player::Player;
 use crate::Exit;
 
-use crate::actions::{Action, ActionType};
+use crate::actor::actions::{Action, ActionType};
 
 pub struct InputHandler;
 

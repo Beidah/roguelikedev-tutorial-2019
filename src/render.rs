@@ -1,6 +1,8 @@
-use specs::prelude::*;
+use doryen_fov::MapData;
 use tcod::colors::*;
 use tcod::console::*;
+use specs::prelude::*;
+
 
 use crate::components::Position;
 use crate::player::Player;
@@ -32,9 +34,10 @@ impl<'a> System<'a> for DrawEntities {
         ReadStorage<'a, Position>,
         ReadExpect<'a, Camera>,
         WriteExpect<'a, Root>,
+        ReadExpect<'a, MapData>,
     );
 
-    fn run(&mut self, (glyphs, pos, camera, mut con): Self::SystemData) {
+    fn run(&mut self, (glyphs, pos, camera, mut con, fov_map): Self::SystemData) {
         let half_width = camera.width / 2;
         let half_height = camera.height / 2;
         for (glyph, pos) in (&glyphs, &pos).join() {
@@ -43,8 +46,19 @@ impl<'a> System<'a> for DrawEntities {
             {
                 let offset_x = pos.x - (camera.x - half_width);
                 let offset_y = pos.y - (camera.y - half_height);
-                con.set_default_foreground(glyph.color);
-                con.put_char(offset_x, offset_y, glyph.character, BackgroundFlag::None);
+
+                if offset_y < 0
+                    || offset_x < 0
+                    || offset_y >= SCREEN_HEIGHT
+                    || offset_x >= SCREEN_WIDTH
+                {
+                    continue;
+                }
+
+                if fov_map.is_in_fov(pos.x as usize, pos.y as usize) {
+                    con.set_default_foreground(glyph.color);
+                    con.put_char(offset_x, offset_y, glyph.character, BackgroundFlag::None);
+                }
             }
         }
 

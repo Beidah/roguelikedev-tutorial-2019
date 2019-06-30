@@ -5,13 +5,14 @@ use tcod::console::*;
 mod input;
 use input::InputHandler;
 
-mod actions;
+mod actor;
 mod components;
 mod map;
 
 mod player;
 mod render;
-use actions::*;
+
+use actor::{actions::*, *};
 use components::Position;
 use map::*;
 use player::{Player, PlayerSystem};
@@ -41,13 +42,17 @@ fn main() {
     world.register::<Player>();
     world.register::<Action>();
     world.register::<Glyph>();
+    world.register::<Actor>();
 
     world.add_resource(root);
     world.add_resource(Exit(false));
+    world.add_resource(Turn::Enemy);
 
     let map = Map::new(120, 80, &mut world);
     let mut fov_map = doryen_fov::MapData::new(120, 80);
     let (player_x, player_y) = map.get_random_open_spot();
+    let (enemy_x, enemy_y) = map.get_random_open_spot();
+
     map.set_fov_walls(&mut fov_map);
 
     world.add_resource(map);
@@ -78,12 +83,32 @@ fn main() {
         .with(Action(ActionType::None))
         .build();
 
+    world
+        .create_entity()
+        .with(Actor {})
+        .with(Position {
+            x: enemy_x,
+            y: enemy_y,
+        })
+        .with(Glyph {
+            character: 'e',
+            color: tcod::colors::RED,
+        })
+        .with(Action(ActionType::None))
+        .build();
+
     let mut dispatcher = DispatcherBuilder::new()
         .with(PlayerSystem, "player_system", &[])
+        .with(ActionSystem, "actions", &[])
+        .with(ActorSystem, "actor_system", &["actions"])
         .with(CameraScroll, "camera", &["player_system"])
         .with(ComputeFOV, "fov", &[])
         .with(DrawMap, "draw_map", &["camera", "fov"])
-        .with(DrawEntities, "draw_entities", &["camera", "fov"])
+        .with(
+            DrawEntities,
+            "draw_entities",
+            &["actor_system", "camera", "fov"],
+        )
         .with_thread_local(InputHandler)
         .build();
 
